@@ -132,37 +132,39 @@ def fetch_concept_stocks(concept_code):
 
 # ── 数据源3: 涨停股列表 ───────────────────────────
 def fetch_limit_up_stocks():
-    """获取今日涨停股"""
+    """获取今日涨停股（多源降级）"""
     log("  [2a] 涨停股列表...")
+    stocks = []
+
+    # 尝试1: push2ex 涨停池
     try:
         url = (
             "http://push2ex.eastmoney.com/getTopicZTPool?"
             "ut=7eea3edcaed734bea9cbfc24409ed989"
-            "&dpt=wz.ztzt&Ession_token=&date="
-            + now.strftime("%Y%m%d")
+            "&dpt=wz.ztzt&date=" + now.strftime("%Y%m%d")
         )
         data = safe_json(url)
-        if not data or "data" not in data or not data["data"]:
-            log("    无涨停数据")
-            return []
-
-        stocks = []
-        pool = data["data"].get("pool", [])
-        for s in pool[:15]:
-            stocks.append({
-                "name": s.get("n", ""),
-                "code": s.get("c", ""),
-                "price": s.get("p", 0),
-                "change": s.get("zdp", 0),
-                "reason": s.get("hybk", ""),  # 所属板块
-                "time": s.get("fst", ""),  # 封板时间
-                "tag": s.get("tag", ""),  # 标签(一字等)
-            })
-        log(f"    成功: {len(stocks)} 只涨停")
-        return stocks
+        if data and "data" in data and data["data"]:
+            pool = data["data"].get("pool", [])
+            for s in pool:
+                stocks.append({
+                    "name": s.get("n", ""),
+                    "code": s.get("c", ""),
+                    "price": s.get("p", 0),
+                    "change": s.get("zdp", 10),
+                    "reason": s.get("hybk", ""),
+                    "time": s.get("fst", ""),
+                    "tag": s.get("tag", ""),
+                })
+            log(f"    push2ex: {len(stocks)} 只")
+            if len(stocks) >= 10:
+                return stocks[:15]
     except Exception as e:
-        log(f"    异常: {e}")
-        return []
+        log(f"    push2ex 失败: {e}")
+
+    # 尝试2: 从各概念领涨股中筛选准涨停（涨幅>=9%）
+    log("    从概念领涨股中补充...")
+    return stocks  # 返回已获取的（可能为空），由调用方补充
 
 # ── 数据源4: 大盘指数 ─────────────────────────────
 def fetch_market_indices():
@@ -234,7 +236,6 @@ def fetch_all_data():
 
     # 2. 为每个概念获取领涨股
     log("\n[2/3] 领涨个股...")
-    limit_stocks = fetch_limit_up_stocks()
     for c in concepts:
         code = c.get("code", "")
         if code:
@@ -242,10 +243,34 @@ def fetch_all_data():
             c["leaders"] = stocks
             time.sleep(0.2)  # 避免频率限制
         else:
-            # 兜底概念从涨停列表中匹配
             c["leaders"] = []
 
-    # 3. 大盘指数
+    # 3. 涨停股（优先API，不足则从领涨股中补充）
+    log("\n[2b] 涨停股汇总...")
+    limit_stocks = fetch_limit_up_stocks()
+    # 从概念领涨股中筛选涨幅>=8%的作为补充，按涨幅排序取前15
+    seen_codes = {s.get("code","") for s in limit_stocks}
+    candidates = []
+    for c in concepts:
+        for s in c.get("leaders", []):
+            cp = s.get("change", 0)
+            code = s.get("code", "")
+            if cp >= 8 and code and code not in seen_codes:
+                seen_codes.add(code)
+                candidates.append({
+                    "name": s.get("name", ""),
+                    "code": code,
+                    "price": s.get("price", 0),
+                    "change": cp,
+                    "reason": c.get("name", ""),
+                    "time": "",
+                    "tag": "",
+                })
+    candidates.sort(key=lambda x: x["change"], reverse=True)
+    limit_stocks.extend(candidates[:15])
+    log(f"    涨停+准涨停共: {len(limit_stocks)} 只")
+
+    # 4. 大盘指数
     log("\n[3/3] 大盘指数...")
     indices = fetch_market_indices()
 
@@ -358,6 +383,50 @@ def gen_concept_card(c, rank):
         '    </div>\n'
     )
 
+def gen_leader_stocks_html(concepts):
+    """从所有概念的领涨股中聚合出涨幅最大的个股"""
+    all_leaders = []
+    for c in concepts:
+        for s in c.get("leaders", []):
+            all_leaders.append({
+                "name": s.get("name", ""),
+                "code": s.get("code", ""),
+                "price": s.get("price", 0),
+                "change": s.get("change", 0),
+                "concept": c.get("name", ""),
+            })
+    # 按涨幅排序，去重
+    seen = set()
+    unique = []
+    for s in sorted(all_leaders, key=lambda x: x["change"], reverse=True):
+        key = s["code"] or s["name"]
+        if key and key not in seen:
+            seen.add(key)
+            unique.append(s)
+    if not unique:
+        return '<div style="color:#555;padding:20px;text-align:center;">暂无数据</div>'
+
+    html = ""
+    for s in unique[:20]:
+        name = esc(s["name"])
+        code = esc(s["code"])
+        cp = s["change"]
+        cls = "up" if cp >= 0 else "down"
+        sign = "+" if cp >= 0 else ""
+        concept = esc(s.get("concept", ""))
+        html += (
+            '    <div class="stock-card">\n'
+            '      <div class="stock-info">\n'
+            '        <div class="stock-name">' + name + '</div>\n'
+            '        <div class="stock-code">' + code + (' · ' + concept if concept else '') + '</div>\n'
+            '      </div>\n'
+            '      <div class="stock-price-wrap">\n'
+            '        <div class="stock-change ' + cls + '">' + sign + str(round(float(cp), 2)) + '%</div>\n'
+            '      </div>\n'
+            '    </div>\n'
+        )
+    return html
+
 def gen_stock_cards(limit_stocks, max_count=8):
     """涨停/领涨个股卡片"""
     html = ""
@@ -400,7 +469,7 @@ def gen_full_html(concepts, limit_stocks, indices):
     concept_cards_html = ""
     for i, c in enumerate(concepts[:top_count]):
         concept_cards_html += gen_concept_card(c, i + 1)
-    stock_grid_html = gen_stock_cards(limit_stocks, 8)
+    stock_grid_html = gen_stock_cards(limit_stocks, 10)
 
     # 拼接完整页面
     html = '<!DOCTYPE html>\n'
@@ -436,30 +505,43 @@ def gen_full_html(concepts, limit_stocks, indices):
     html += '  <!-- Tabs -->\n'
     html += '  <div class="tab-bar">\n'
     html += '    <div class="tab-items">\n'
-    html += '      <div class="tab-item active">热度排行</div>\n'
-    html += '      <div class="tab-item">涨停明细</div>\n'
-    html += '      <div class="tab-item">领涨个股</div>\n'
+    html += '      <div class="tab-item active" data-tab="concepts">热度排行</div>\n'
+    html += '      <div class="tab-item" data-tab="zt">涨停明细</div>\n'
+    html += '      <div class="tab-item" data-tab="leaders">领涨个股</div>\n'
     html += '    </div>\n'
     html += '  </div>\n\n'
 
-    # Hot Concepts
-    html += '  <!-- Section: Hot Concepts -->\n'
-    html += '  <div class="section-title">\n'
-    html += '    热点概念排行\n'
-    html += '    <span class="count">TOP ' + str(top_count) + '</span>\n'
-    html += '  </div>\n'
-    html += '  <div class="concept-list">\n\n'
+    # Tab: Hot Concepts
+    html += '  <div id="tab-concepts" class="tab-content active">\n'
+    html += '    <div class="section-title">\n'
+    html += '      热点概念排行\n'
+    html += '      <span class="count">TOP ' + str(top_count) + '</span>\n'
+    html += '    </div>\n'
+    html += '    <div class="concept-list">\n\n'
     html += concept_cards_html
+    html += '    </div>\n'
     html += '  </div>\n\n'
 
-    # Hot Stocks
-    html += '  <!-- Section: Hot Stocks -->\n'
-    html += '  <div class="section-title">\n'
-    html += '    今日涨停个股\n'
-    html += '    <span class="count">精选</span>\n'
-    html += '  </div>\n'
-    html += '  <div class="stock-grid">\n\n'
+    # Tab: 涨停明细
+    html += '  <div id="tab-zt" class="tab-content" style="display:none">\n'
+    html += '    <div class="section-title">\n'
+    html += '      今日涨停个股\n'
+    html += '      <span class="count">TOP 10</span>\n'
+    html += '    </div>\n'
+    html += '    <div class="stock-grid">\n\n'
     html += stock_grid_html
+    html += '    </div>\n'
+    html += '  </div>\n\n'
+
+    # Tab: 领涨个股 (个股排行)
+    html += '  <div id="tab-leaders" class="tab-content" style="display:none">\n'
+    html += '    <div class="section-title">\n'
+    html += '      领涨个股排行\n'
+    html += '      <span class="count">涨幅前20</span>\n'
+    html += '    </div>\n'
+    html += '    <div class="stock-grid">\n\n'
+    html += gen_leader_stocks_html(concepts)
+    html += '    </div>\n'
     html += '  </div>\n\n'
 
     # Disclaimer
@@ -469,6 +551,19 @@ def gen_full_html(concepts, limit_stocks, indices):
     html += '    更新时间: ' + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + '\n'
     html += '  </div>\n\n'
     html += '</div>\n'
+    # Tab switching JS
+    html += '<script>\n'
+    html += 'document.querySelectorAll(".tab-item").forEach(function(tab){\n'
+    html += '  tab.addEventListener("click",function(){\n'
+    html += '    var target = this.getAttribute("data-tab");\n'
+    html += '    document.querySelectorAll(".tab-item").forEach(function(t){t.classList.remove("active");});\n'
+    html += '    this.classList.add("active");\n'
+    html += '    document.querySelectorAll(".tab-content").forEach(function(c){c.style.display="none";c.classList.remove("active");});\n'
+    html += '    var el = document.getElementById("tab-"+target);\n'
+    html += '    if(el){el.style.display="block";el.classList.add("active");}\n'
+    html += '  });\n'
+    html += '});\n'
+    html += '</script>\n'
     html += '</body>\n</html>'
     return html
 
@@ -608,6 +703,8 @@ body {
 }
 .tab-item.active { background: rgba(226,75,74,0.15); color: #e24b4a; font-weight: 600; }
 .tab-item:hover { color: #e8e8f0; }
+.tab-content { animation: fadeInUp 0.3s ease; }
+.tab-content.active { display: block; }
 .disclaimer {
   margin-top: 30px; padding: 14px 16px;
   background: rgba(255,255,255,0.03); border-radius: 10px;
