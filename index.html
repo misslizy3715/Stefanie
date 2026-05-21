@@ -3,127 +3,363 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>A股热点概念追踪 - 2026-05-21</title>
+<title>今天炒什么 | 2026-05-21</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0f172a;color:#e2e8f0;line-height:1.6;min-height:100vh}
-.container{max-width:800px;margin:0 auto;padding:20px}
-.header{text-align:center;padding:32px 0 24px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:24px}
-.title{font-size:28px;font-weight:800;background:linear-gradient(90deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
-.subtitle{font-size:14px;color:#64748b}
-.section-title{font-size:18px;font-weight:700;margin:24px 0 16px;padding-left:12px;border-left:3px solid #60a5fa}
-.update-time{text-align:center;font-size:12px;color:#475569;margin-top:32px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06)}
-.concept-card:hover{transform:translateY(-2px)}
-@media(max-width:600px){.title{font-size:22px}.container{padding:12px}}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #0f0f1a;
+  color: #e8e8f0;
+  min-height: 100vh;
+  padding: 20px;
+}
+.container { max-width: 900px; margin: 0 auto; }
+.header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px; padding: 16px 20px;
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);
+}
+.header-left h1 { font-size: 18px; font-weight: 600; color: #fff; letter-spacing: 1px; }
+.header-left .subtitle { font-size: 12px; color: #888; margin-top: 4px; }
+.live-tag {
+  background: linear-gradient(135deg, #e24b4a, #c0392b);
+  color: #fff; font-size: 11px; font-weight: 600;
+  padding: 4px 10px; border-radius: 20px; letter-spacing: 1px;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+.market-summary {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  border-radius: 16px; padding: 16px 20px; margin-bottom: 16px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.market-summary h3 { font-size: 12px; color: #888; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+.market-indices { display: flex; gap: 12px; flex-wrap: wrap; }
+.index-item {
+  background: rgba(255,255,255,0.04); border-radius: 10px;
+  padding: 10px 16px; min-width: 100px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.index-name { font-size: 11px; color: #888; }
+.index-value { font-size: 16px; font-weight: 600; margin: 2px 0; }
+.index-change { font-size: 12px; font-weight: 500; }
+.up { color: #e24b4a; }
+.down { color: #1D9E75; }
+.section-title {
+  font-size: 14px; font-weight: 600; color: #fff;
+  margin: 20px 0 12px; padding-left: 12px;
+  border-left: 3px solid #e24b4a;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-title .count {
+  font-size: 11px; background: rgba(226,75,74,0.15);
+  color: #e24b4a; padding: 2px 8px; border-radius: 10px; font-weight: 400;
+}
+.concept-list { display: flex; flex-direction: column; gap: 10px; }
+.concept-card {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  border-radius: 14px; padding: 14px 16px;
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: all 0.2s; cursor: pointer;
+}
+.concept-card:hover {
+  border-color: rgba(226,75,74,0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.concept-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.concept-rank {
+  width: 28px; height: 28px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; flex-shrink: 0;
+}
+.rank-1 { background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; }
+.rank-2 { background: linear-gradient(135deg, #C0C0C0, #A0A0A0); color: #000; }
+.rank-3 { background: linear-gradient(135deg, #CD7F32, #A0522D); color: #fff; }
+.rank-default { background: rgba(255,255,255,0.08); color: #888; }
+.concept-name-wrap { flex: 1; margin-left: 12px; }
+.concept-name { font-size: 15px; font-weight: 600; color: #fff; }
+.concept-tag {
+  font-size: 10px; color: #888; margin-top: 2px;
+  background: rgba(255,255,255,0.06);
+  display: inline-block; padding: 1px 6px;
+  border-radius: 4px; margin-right: 4px;
+}
+.concept-return-wrap { text-align: right; }
+.concept-return { font-size: 20px; font-weight: 700; }
+.concept-return-sub { font-size: 11px; color: #888; margin-top: 2px; }
+.concept-card-bottom { display: flex; gap: 8px; flex-wrap: wrap; }
+.stat-chip {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px; padding: 6px 10px;
+  flex: 1; min-width: 80px;
+}
+.stat-label { font-size: 10px; color: #666; margin-bottom: 2px; }
+.stat-value { font-size: 13px; font-weight: 600; color: #fff; }
+.stat-value.hot { color: #ff9500; }
+.concept-news {
+  margin-top: 10px; padding: 8px 10px;
+  background: rgba(226,75,74,0.06); border-radius: 8px;
+  border-left: 2px solid rgba(226,75,74,0.4);
+}
+.concept-news-text { font-size: 12px; color: #aaa; line-height: 1.5; }
+.concept-news-text strong { color: #e24b4a; }
+.stock-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px; margin-top: 16px;
+}
+.stock-card {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  border-radius: 12px; padding: 12px 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.stock-info { flex: 1; }
+.stock-name { font-size: 14px; font-weight: 600; color: #fff; }
+.stock-code { font-size: 11px; color: #666; margin-top: 2px; }
+.stock-tag {
+  font-size: 10px; padding: 2px 6px; border-radius: 4px;
+  margin-top: 4px; display: inline-block;
+}
+.tag-zt { background: rgba(226,75,74,0.2); color: #e24b4a; }
+.tag-lb { background: rgba(255,149,0,0.15); color: #ff9500; }
+.stock-price-wrap { text-align: right; }
+.stock-change { font-size: 16px; font-weight: 700; }
+.tab-bar {
+  position: sticky; top: 0; background: #0f0f1a;
+  padding: 10px 0; z-index: 100; margin-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.tab-items { display: flex; gap: 4px; }
+.tab-item {
+  padding: 6px 14px; border-radius: 20px;
+  font-size: 13px; color: #666; cursor: pointer;
+  transition: all 0.2s; white-space: nowrap;
+}
+.tab-item.active { background: rgba(226,75,74,0.15); color: #e24b4a; font-weight: 600; }
+.tab-item:hover { color: #e8e8f0; }
+.disclaimer {
+  margin-top: 30px; padding: 14px 16px;
+  background: rgba(255,255,255,0.03); border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.06);
+  font-size: 11px; color: #555; line-height: 1.6; text-align: center;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.concept-card { animation: fadeInUp 0.4s ease forwards; }
+.concept-card:nth-child(1) { animation-delay: 0.05s; }
+.concept-card:nth-child(2) { animation-delay: 0.1s; }
+.concept-card:nth-child(3) { animation-delay: 0.15s; }
+.concept-card:nth-child(4) { animation-delay: 0.2s; }
+.concept-card:nth-child(5) { animation-delay: 0.25s; }
+.concept-card:nth-child(6) { animation-delay: 0.3s; }
+@media(max-width:600px) {
+  body { padding: 12px; }
+  .container { max-width: 100%; }
+  .market-indices { gap: 8px; }
+  .index-item { min-width: 70px; padding: 8px 10px; }
+  .stock-grid { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
 <div class="container">
+  <!-- Header -->
   <div class="header">
-    <div class="title">🔥 A股热点概念追踪</div>
-    <div class="subtitle">2026-05-21 周四 · 每日自动更新</div>
+    <div class="header-left">
+      <h1>今天炒什么 🔥</h1>
+      <div class="subtitle">A股热点概念追踪 · 2026-05-21 周四 盘前</div>
+    </div>
+    <div class="live-tag">LIVE</div>
   </div>
 
-  <div class="section-title">📊 大盘指数</div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px;">
-        <div style="background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;text-align:center;">
-          <div style="font-size:13px;color:#94a3b8;margin-bottom:4px;">上证指数</div>
-          <div style="font-size:22px;font-weight:700;color:#fff;margin-bottom:4px;">4111.00</div>
-          <div style="font-size:14px;color:#ef4444;">+4174.38%</div>
-        </div>
-        
-        <div style="background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;text-align:center;">
-          <div style="font-size:13px;color:#94a3b8;margin-bottom:4px;">深证成指</div>
-          <div style="font-size:22px;font-weight:700;color:#fff;margin-bottom:4px;">15404.16</div>
-          <div style="font-size:14px;color:#ef4444;">+15707.96%</div>
-        </div>
-        
-        <div style="background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;text-align:center;">
-          <div style="font-size:13px;color:#94a3b8;margin-bottom:4px;">创业板指</div>
-          <div style="font-size:22px;font-weight:700;color:#fff;margin-bottom:4px;">3876.98</div>
-          <div style="font-size:14px;color:#ef4444;">+3962.30%</div>
-        </div>
-        
-        <div style="background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;text-align:center;">
-          <div style="font-size:13px;color:#94a3b8;margin-bottom:4px;">科创50</div>
-          <div style="font-size:22px;font-weight:700;color:#fff;margin-bottom:4px;">1794.21</div>
-          <div style="font-size:14px;color:#ef4444;">+1866.29%</div>
-        </div>
-        </div>
+  <!-- Market Summary -->
+  <div class="market-summary">
+    <h3>大盘表现</h3>
+    <div class="market-indices">
+<div class="index-item"><div class="index-name">上证指数</div><div class="index-value">4089.14</div><div class="index-change down">▼ -1.75%</div></div>
+<div class="index-item"><div class="index-name">深证成指</div><div class="index-value">15306.82</div><div class="index-change down">▼ -1.69%</div></div>
+<div class="index-item"><div class="index-name">创业板指</div><div class="index-value">3847.96</div><div class="index-change down">▼ -1.88%</div></div>
+<div class="index-item"><div class="index-name">科创50</div><div class="index-value">1775.05</div><div class="index-change down">▼ -3.11%</div></div>
+<div class="index-item"><div class="index-name">恒生科技</div><div class="index-value">25463.400</div><div class="index-change down">▼ -0.73%</div></div>
+    </div>
+  </div>
 
-  <div class="section-title">🔥 热门概念 TOP6</div>
-  
-        <div class="concept-card" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:16px;padding:20px;margin-bottom:16px;transition:transform 0.2s;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <div style="font-size:18px;font-weight:700;color:#fff;">算力/CPO</div>
-            <div style="font-size:24px;font-weight:800;color:#ef4444;">+5.82%</div>
-          </div>
-          <div style="font-size:13px;color:#94a3b8;margin-bottom:12px;line-height:1.5;">AI算力需求爆发，光模块龙头业绩高增</div>
-          <div style="display:flex;flex-wrap:wrap;">
-            <span style="display:inline-block;padding:2px 8px;background:rgba(255,255,255,0.1);border-radius:12px;font-size:12px;margin-right:6px;margin-bottom:4px;">中际旭创</span><span style="display:inline-block;padding:2px 8px;background:rgba(255,255,255,0.1);border-radius:12px;font-size:12px;margin-right:6px;margin-bottom:4px;">新易盛</span><span style="display:inline-block;padding:2px 8px;background:rgba(255,255,255,0.1);border-radius:12px;font-size:12px;margin-right:6px;margin-bottom:4px;">天孚通信</span>
-          </div>
-        </div>
-        
-        <div class="concept-card" style="background:rgba(249,115,22,0.15);border:1px solid rgba(249,115,22,0.3);border-radius:16px;padding:20px;margin-bottom:16px;transition:transform 0.2s;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <div style="font-size:18px;font-weight:700;color:#fff;">机器人/人形机器人</div>
-            <div style="font-size:24px;font-weight:800;color:#ef4444;">+4.15%</div>
-          </div>
-          <div style="font-size:13px;color:#94a3b8;margin-bottom:12px;line-height:1.5;">特斯拉Optimus量产预期，产业链加速布局</div>
-          <div style="display:flex;flex-wrap:wrap;">
-            <span style="display:inline-block;padding:2px 8px;background:rgba(255,255,255,0.1);border-radius:12px;font-size:12px;margin-right:6px;margin-bottom:4px;">绿的谐波</span><span style="display:inline-block;padding:2px 8px;background:rgba(255,255,255,0.1);border-radius:12px;font-size:12px;margin-right:6px;margin-bottom:4px;">鸣志电器</span><span style="display:inline-block;padding:2px 8px;background:rgba(255,255,255,0.1);border-radius:12px;font-size:12px;margin-right:6px;margin-bottom:4px;">三花智控</span>
-          </div>
-        </div>
-        
-        <div class="concept-card" style="background:rgba(234,179,8,0.15);border:1px solid rgba(234,179,8,0.3);border-radius:16px;padding:20px;margin-bottom:16px;transition:transform 0.2s;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <div style="font-size:18px;font-weight:700;color:#fff;">固态电池</div>
-            <div style="font-size:24px;font-weight:800;color:#ef4444;">+3.67%</div>
-          </div>
-          <div style="font-size:13px;color:#94a3b8;margin-bottom:12px;line-height:1.5;">半固态电池装车加速，全固态技术突破</div>
-          <div style="display:flex;flex-wrap:wrap;">
-            <span style="display:inline-block;padding:2px 8px;background:rgba(255,255,255,0.1);border-radius:12px;font-size:12px;margin-right:6px;margin-bottom:4px;">宁德时代</span><span style="display:inline-block;padding:2px 8px;background:rgba(255,255,255,0.1);border-radius:12px;font-size:12px;margin-right:6px;margin-bottom:4px;">赣锋锂业</span><span style="display:inline-block;padding:2px 8px;background:rgba(255,255,255,0.1);border-radius:12px;font-size:12px;margin-right:6px;margin-bottom:4px;">当升科技</span>
-          </div>
-        </div>
-        
-        <div class="concept-card" style="background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);border-radius:16px;padding:20px;margin-bottom:16px;transition:transform 0.2s;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <div style="font-size:18px;font-weight:700;color:#fff;">商业航天</div>
-            <div style="font-size:24px;font-weight:800;color:#ef4444;">+3.21%</div>
-          </div>
-          <div style="font-size:13px;color:#94a3b8;margin-bottom:12px;line-height:1.5;">低轨卫星组网提速，政策支持力度加大</div>
-          <div style="display:flex;flex-wrap:wrap;">
-            <span style="display:inline-block;padding:2px 8px;background:rgba(255,255,255,0.1);border-radius:12px;font-size:12px;margin-right:6px;margin-bottom:4px;">中国卫星</span><span style="display:inline-block;padding:2px 8px;background:rgba(255,255,255,0.1);border-radius:12px;font-size:12px;margin-right:6px;margin-bottom:4px;">航天电子</span><span style="display:inline-block;padding:2px 8px;background:rgba(255,255,255,0.1);border-radius:12px;font-size:12px;margin-right:6px;margin-bottom:4px;">中天火箭</span>
-          </div>
-        </div>
-        
-        <div class="concept-card" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);border-radius:16px;padding:20px;margin-bottom:16px;transition:transform 0.2s;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <div style="font-size:18px;font-weight:700;color:#fff;">创新药</div>
-            <div style="font-size:24px;font-weight:800;color:#ef4444;">+2.98%</div>
-          </div>
-          <div style="font-size:13px;color:#94a3b8;margin-bottom:12px;line-height:1.5;">出海License-out持续，ADC赛道火热</div>
-          <div style="display:flex;flex-wrap:wrap;">
-            <span style="display:inline-block;padding:2px 8px;background:rgba(255,255,255,0.1);border-radius:12px;font-size:12px;margin-right:6px;margin-bottom:4px;">百济神州</span><span style="display:inline-block;padding:2px 8px;background:rgba(255,255,255,0.1);border-radius:12px;font-size:12px;margin-right:6px;margin-bottom:4px;">信达生物</span><span style="display:inline-block;padding:2px 8px;background:rgba(255,255,255,0.1);border-radius:12px;font-size:12px;margin-right:6px;margin-bottom:4px;">恒瑞医药</span>
-          </div>
-        </div>
-        
-        <div class="concept-card" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);border-radius:16px;padding:20px;margin-bottom:16px;transition:transform 0.2s;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <div style="font-size:18px;font-weight:700;color:#fff;">半导体设备</div>
-            <div style="font-size:24px;font-weight:800;color:#ef4444;">+2.45%</div>
-          </div>
-          <div style="font-size:13px;color:#94a3b8;margin-bottom:12px;line-height:1.5;">国产替代加速，先进制程设备订单饱满</div>
-          <div style="display:flex;flex-wrap:wrap;">
-            <span style="display:inline-block;padding:2px 8px;background:rgba(255,255,255,0.1);border-radius:12px;font-size:12px;margin-right:6px;margin-bottom:4px;">北方华创</span><span style="display:inline-block;padding:2px 8px;background:rgba(255,255,255,0.1);border-radius:12px;font-size:12px;margin-right:6px;margin-bottom:4px;">中微公司</span><span style="display:inline-block;padding:2px 8px;background:rgba(255,255,255,0.1);border-radius:12px;font-size:12px;margin-right:6px;margin-bottom:4px;">拓荆科技</span>
-          </div>
-        </div>
-        
+  <!-- Tabs -->
+  <div class="tab-bar">
+    <div class="tab-items">
+      <div class="tab-item active">热度排行</div>
+      <div class="tab-item">涨停明细</div>
+      <div class="tab-item">领涨个股</div>
+    </div>
+  </div>
 
-  <div class="section-title">📰 关联资讯</div>
-  <div style="text-align:center;color:#64748b;padding:20px;">暂无关联新闻</div>
+  <!-- Section: Hot Concepts -->
+  <div class="section-title">
+    热点概念排行
+    <span class="count">TOP 6</span>
+  </div>
+  <div class="concept-list">
 
-  <div class="update-time">数据更新时间: 2026-05-21 06:25:38<br>来源: 东方财富 / 腾讯财经 / 财联社</div>
+    <div class="concept-card">
+      <div class="concept-card-top">
+        <div class="concept-rank rank-1">1</div>
+        <div class="concept-name-wrap">
+          <div class="concept-name">3D玻璃</div>
+          <div>
+            <span class="concept-tag">昊志机电 +15.02%</span>
+      <span class="concept-tag">华映科技 +10.0%</span>
+      
+          </div>
+        </div>
+        <div class="concept-return-wrap">
+          <div class="concept-return up">+2.07%</div>
+          <div class="concept-return-sub">板块涨幅</div>
+        </div>
+      </div>
+      <div class="concept-card-bottom">
+        <div class="stat-chip"><div class="stat-label">涨停家数</div><div class="stat-value">3家</div></div>
+        <div class="stat-chip"><div class="stat-label">领涨股</div><div class="stat-value">昊志机电 +15.02%</div></div>
+        <div class="stat-chip"><div class="stat-label">量比</div><div class="stat-value hot">10.0</div></div>
+      </div>
+      <div class="concept-news"><div class="concept-news-text">3D玻璃板块今日表现活跃</div></div>
+    </div>
+    <div class="concept-card">
+      <div class="concept-card-top">
+        <div class="concept-rank rank-2">2</div>
+        <div class="concept-name-wrap">
+          <div class="concept-name">3D摄像头</div>
+          <div>
+            <span class="concept-tag">五方光电 +10.02%</span>
+      <span class="concept-tag">联创电子 +9.99%</span>
+      
+          </div>
+        </div>
+        <div class="concept-return-wrap">
+          <div class="concept-return up">+2.0%</div>
+          <div class="concept-return-sub">板块涨幅</div>
+        </div>
+      </div>
+      <div class="concept-card-bottom">
+        <div class="stat-chip"><div class="stat-label">涨停家数</div><div class="stat-value">2家</div></div>
+        <div class="stat-chip"><div class="stat-label">领涨股</div><div class="stat-value">五方光电 +10.02%</div></div>
+        <div class="stat-chip"><div class="stat-label">量比</div><div class="stat-value hot">5.0</div></div>
+      </div>
+      <div class="concept-news"><div class="concept-news-text">3D摄像头板块今日表现活跃</div></div>
+    </div>
+    <div class="concept-card">
+      <div class="concept-card-top">
+        <div class="concept-rank rank-3">3</div>
+        <div class="concept-name-wrap">
+          <div class="concept-name">屏下摄像</div>
+          <div>
+            <span class="concept-tag">京东方Ａ +10.09%</span>
+      <span class="concept-tag">联创电子 +9.99%</span>
+      
+          </div>
+        </div>
+        <div class="concept-return-wrap">
+          <div class="concept-return up">+1.57%</div>
+          <div class="concept-return-sub">板块涨幅</div>
+        </div>
+      </div>
+      <div class="concept-card-bottom">
+        <div class="stat-chip"><div class="stat-label">涨停家数</div><div class="stat-value">2家</div></div>
+        <div class="stat-chip"><div class="stat-label">领涨股</div><div class="stat-value">京东方Ａ +10.09%</div></div>
+        <div class="stat-chip"><div class="stat-label">量比</div><div class="stat-value hot">5.0</div></div>
+      </div>
+      <div class="concept-news"><div class="concept-news-text">屏下摄像板块今日表现活跃</div></div>
+    </div>
+    <div class="concept-card">
+      <div class="concept-card-top">
+        <div class="concept-rank rank-default">4</div>
+        <div class="concept-name-wrap">
+          <div class="concept-name">机器人执行器</div>
+          <div>
+            <span class="concept-tag">昊志机电 +14.72%</span>
+      <span class="concept-tag">步科股份 +8.18%</span>
+      
+          </div>
+        </div>
+        <div class="concept-return-wrap">
+          <div class="concept-return up">+1.54%</div>
+          <div class="concept-return-sub">板块涨幅</div>
+        </div>
+      </div>
+      <div class="concept-card-bottom">
+        <div class="stat-chip"><div class="stat-label">涨停家数</div><div class="stat-value">1家</div></div>
+        <div class="stat-chip"><div class="stat-label">领涨股</div><div class="stat-value">昊志机电 +14.72%</div></div>
+        <div class="stat-chip"><div class="stat-label">量比</div><div class="stat-value hot">23.0</div></div>
+      </div>
+      <div class="concept-news"><div class="concept-news-text">机器人执行器板块今日表现活跃</div></div>
+    </div>
+    <div class="concept-card">
+      <div class="concept-card-top">
+        <div class="concept-rank rank-default">5</div>
+        <div class="concept-name-wrap">
+          <div class="concept-name">电子纸概念</div>
+          <div>
+            <span class="concept-tag">京东方Ａ +10.09%</span>
+      <span class="concept-tag">亚世光电 +10.0%</span>
+      
+          </div>
+        </div>
+        <div class="concept-return-wrap">
+          <div class="concept-return up">+0.79%</div>
+          <div class="concept-return-sub">板块涨幅</div>
+        </div>
+      </div>
+      <div class="concept-card-bottom">
+        <div class="stat-chip"><div class="stat-label">涨停家数</div><div class="stat-value">3家</div></div>
+        <div class="stat-chip"><div class="stat-label">领涨股</div><div class="stat-value">京东方Ａ +10.09%</div></div>
+        <div class="stat-chip"><div class="stat-label">量比</div><div class="stat-value hot">6.0</div></div>
+      </div>
+      <div class="concept-news"><div class="concept-news-text">电子纸概念板块今日表现活跃</div></div>
+    </div>
+    <div class="concept-card">
+      <div class="concept-card-top">
+        <div class="concept-rank rank-default">6</div>
+        <div class="concept-name-wrap">
+          <div class="concept-name">玻璃基板</div>
+          <div>
+            <span class="concept-tag">雷曼光电 +10.63%</span>
+      <span class="concept-tag">美迪凯 +10.59%</span>
+      
+          </div>
+        </div>
+        <div class="concept-return-wrap">
+          <div class="concept-return up">+0.44%</div>
+          <div class="concept-return-sub">板块涨幅</div>
+        </div>
+      </div>
+      <div class="concept-card-bottom">
+        <div class="stat-chip"><div class="stat-label">涨停家数</div><div class="stat-value">3家</div></div>
+        <div class="stat-chip"><div class="stat-label">领涨股</div><div class="stat-value">雷曼光电 +10.63%</div></div>
+        <div class="stat-chip"><div class="stat-label">量比</div><div class="stat-value hot">15.0</div></div>
+      </div>
+      <div class="concept-news"><div class="concept-news-text">玻璃基板板块今日表现活跃</div></div>
+    </div>
+  </div>
+
+  <!-- Section: Hot Stocks -->
+  <div class="section-title">
+    今日涨停个股
+    <span class="count">精选</span>
+  </div>
+  <div class="stock-grid">
+
+<div style="color:#555;padding:20px;text-align:center;">暂无数据</div>  </div>
+
+  <!-- Disclaimer -->
+  <div class="disclaimer">
+    数据来源：东方财富 · 仅供参考，不构成投资建议 · 市场有风险，投资需谨慎<br>
+    更新时间: 2026-05-21 06:48:48
+  </div>
+
 </div>
 </body>
 </html>
