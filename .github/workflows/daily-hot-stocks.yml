@@ -1,44 +1,36 @@
-name: Daily Hot Stocks Report
+name: Fetch hot stocks data and render HTML
 
 on:
   schedule:
-    # 每天早上 09:00 (北京时间) 自动执行
-    # GitHub Actions 使用 UTC，与北京时间相差 8 小时
-    - cron: '0 1 * * 1-5'
+    - cron: '30 09 * * 1-5'
   workflow_dispatch:
-    # 支持手动触发
+
+permissions:
+  contents: write
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      contents: write
-
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
-        # 保留默认凭据以便后续 push
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
-        run: |
-          pip install requests
-
-      - name: Fetch hot stocks data and render HTML
+      - name: Fetch data and render
         env:
-          NEODATA_TOKEN: ${{ secrets.NEODATA_TOKEN }}
           NEODATA_TEMP_TOKEN: ${{ secrets.NEODATA_TEMP_TOKEN }}
-        run: python fetch_and_render.py
+        run: |
+          set -x
+          python fetch_and_render_v3.py
+          ls -la index.html
 
       - name: Commit and push
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add -A
-          git diff --staged --quiet || git commit -m "Auto-update: 今日热点概念 $(date +'%Y-%m-%d %H:%M')"
-          git push origin main
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || (git commit -m "Update hot stocks $(date +%Y-%m-%d)" && git push)
