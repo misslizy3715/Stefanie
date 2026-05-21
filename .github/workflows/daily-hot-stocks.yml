@@ -1,0 +1,32 @@
+name: 每日热点概念追踪报告
+on:
+  schedule:
+    - cron: '0 1 * * 1-5'  # UTC时间01:00 = 北京时间09:00，周一至周五
+  workflow_dispatch:         # 支持手动触发
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装Python依赖
+        run: |
+          python3 --version || python --version
+          pip3 install requests beautifulsoup4 lxml
+
+      - name: 运行数据抓取和渲染脚本
+        env:
+          NEODATA_TEMP_TOKEN: ${{ secrets.NEODATA_TEMP_TOKEN }}
+        run: python3 fetch_and_render.py
+
+      - name: 部署到GitHub Pages
+        run: cp output/index.html index.html
+
+      - name: 推送到main分支
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html output/
+          git diff --cached --quiet || git commit -m "$(date +'%Y-%m-%d') 热点概念自动更新"
+          git push origin main
